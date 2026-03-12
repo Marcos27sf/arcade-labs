@@ -15,14 +15,20 @@ class GameView(arcade.View):
         self.gd_sprite_path = Path("C:\\Users\\PC\\Desktop\\Laboratorio\\Tecnología de Videojuegos\\img\\gd.png")
         self.coin_sprite_path = Path("C:\\Users\\PC\\Desktop\\Laboratorio\\Tecnología de Videojuegos\\img\\coin.png")
         self.coin_sound_path = Path("C:\\Users\\PC\\Desktop\\Laboratorio\\Tecnología de Videojuegos\\sound\\coin_sound.mp3")
+        self.block_sprite_path = Path("C:\\Users\\PC\\Desktop\\Laboratorio\\Tecnología de Videojuegos\\img\\block.png")
 
         self.sprite_list = arcade.SpriteList()
+        self.collision_list = arcade.SpriteList()
 
         self.gd_sprite = arcade.Sprite(self.gd_sprite_path)
         self.coin_sprite = arcade.Sprite(self.coin_sprite_path, scale=0.3)
+        self.block_sprite = arcade.Sprite(self.block_sprite_path)
 
         self.sprite_list.append(self.gd_sprite)
         self.sprite_list.append(self.coin_sprite)
+        self.sprite_list.append(self.block_sprite)
+
+        self.collision_list.append(self.block_sprite)
 
         self.coin_sound = arcade.Sound(self.coin_sound_path)
 
@@ -32,6 +38,9 @@ class GameView(arcade.View):
 
         self.coin_sprite.right = SCREEN_WIDTH - self.coin_sprite.width / 2
         self.coin_sprite.top = SCREEN_HEIGHT - self.coin_sprite.height / 2
+
+        self.block_sprite.center_x = SCREEN_WIDTH / 2
+        self.block_sprite.center_y = SCREEN_HEIGHT / 2 - 50
 
         self.pressed_key = {
             "left": False,
@@ -66,12 +75,29 @@ class GameView(arcade.View):
         
         self.gd_sprite.center_y += self.gd_sprite.change_y
 
-        if self.gd_sprite.bottom < FLOOR_HEIGHT:
-            self.gd_sprite.bottom = FLOOR_HEIGHT - 6
+        if self.gd_sprite.bottom < FLOOR_HEIGHT - 4:
+            self.gd_sprite.bottom = FLOOR_HEIGHT - 4
             self.gd_sprite.change_y = 0
             self.is_jumping = False
             self.gd_sprite.angle = 0
             self.angular_speed = 0
+        
+        hit_list = arcade.check_for_collision_with_list(self.gd_sprite, self.collision_list)
+
+        for block in hit_list:
+            if self.gd_sprite.change_y < 0:
+                self.gd_sprite.bottom = block.top
+                self.gd_sprite.change_y = 0
+                self.is_jumping = False
+                self.gd_sprite.angle = 0
+                self.angular_speed = 0
+            
+            if self.gd_sprite.right >= block.left and self.gd_sprite.bottom < block.top:
+                current_positon = (self.gd_sprite.center_x, self.gd_sprite.center_y)
+                
+                
+        
+        if self.gd_sprite.bottom > FLOOR_HEIGHT and not hit_list: self.is_jumping = True
 
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
@@ -87,7 +113,7 @@ class GameView(arcade.View):
         if key == arcade.key.SPACE and not self.is_jumping:
             self.gd_sprite.change_y = self.jump_force
             self.is_jumping = True
-            self.angular_speed = 6
+            self.angular_speed = 7.5
 
 
     def on_key_release(self, key: int, modifiers: int):
