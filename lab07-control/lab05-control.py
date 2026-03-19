@@ -36,6 +36,9 @@ class GameView(arcade.View):
         self.gd_sprite.bottom = FLOOR_HEIGHT
         self.gd_sprite_speed = 800
 
+        self.gd_sprite_freeze_A = False
+        self.gd_sprite_freeze_D = False
+
         self.coin_sprite.right = SCREEN_WIDTH - self.coin_sprite.width / 2
         self.coin_sprite.top = SCREEN_HEIGHT - self.coin_sprite.height / 2
 
@@ -75,8 +78,8 @@ class GameView(arcade.View):
         
         self.gd_sprite.center_y += self.gd_sprite.change_y
 
-        if self.gd_sprite.bottom < FLOOR_HEIGHT - 4:
-            self.gd_sprite.bottom = FLOOR_HEIGHT - 4
+        if self.gd_sprite.bottom < FLOOR_HEIGHT:
+            self.gd_sprite.bottom = FLOOR_HEIGHT
             self.gd_sprite.change_y = 0
             self.is_jumping = False
             self.gd_sprite.angle = 0
@@ -93,7 +96,11 @@ class GameView(arcade.View):
                 self.angular_speed = 0
             
             if self.gd_sprite.right >= block.left and self.gd_sprite.bottom < block.top:
-                current_positon = (self.gd_sprite.center_x, self.gd_sprite.center_y)
+                self.gd_sprite_freeze_D = True
+                self.gd_sprite_freeze_A = True
+            else:
+                self.gd_sprite_freeze_D = False
+                self.gd_sprite_freeze_A = False
                 
                 
         
